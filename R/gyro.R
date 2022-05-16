@@ -2,47 +2,38 @@ gammaF <- function(A, s){
   1 / sqrt(1 - dotprod(A)/(s*s))
 }
 
-# gyromidpointE <- function(A, B, s=1){
-#   gA <- gamm(A, s=s); gB <- gamm(B, s=s)
-#   (gA*A + gB*B) / (gA+gB)
-# }
-
-gyrocentroidE <- function(A, B, C, s){
-  gA <- gammaF(A, s); gB <- gammaF(B, s); gC <- gammaF(C, s)
-  (gA*A + gB*B + gC*C) / (gA + gB + gC)
-}
-
-PhiEU <- function(A, s){
-  gammaF(A, s) * A
-}
-
 betaF <- function(A, s) 1 / sqrt(1 + dotprod(A)/(s*s))
 
-PhiUE <- function(A, s){
-  betaF(A, s) * A
-}
-
-# gyromidpointU <- function(A, B, s=1){
-#   PhiEU(gyromidpointE(PhiUE(A,s=s),PhiUE(B,s=s),s=s),s=s)
-# }
-
-gyrocentroid <- function(A, B, C, s){
-  PhiEU(gyrocentroidE(PhiUE(A, s), PhiUE(B, s), PhiUE(C, s), s), s)
-}
-
-gyroadd <- function(A, B, s){
+Ugyroadd <- function(A, B, s){
   betaA <- betaF(A, s)
   betaB <- betaF(B, s)
   (1 + betaA/(1+betaA) * dotprod(A, B)/(s*s) + (1-betaB)/betaB) * A + B
 }
 
-gyroscalar <- function(r, A, s){
+Mgyroadd <- function(X, Y, s){
+  s2 <- s * s
+  x <- dotprod(X) / s2
+  y <- dotprod(Y) / s2
+  xy <- 2 * dotprod(X, Y) / s2
+  ((1 + xy + y) * X + (1 - x) * Y) / (1 + xy + x*y)
+}
+
+Ugyroscalar <- function(r, A, s){
   h <- sqrt(dotprod(A)) / s
   sinh(r*asinh(h)) * A / h
 }
 
-.gyroABt <- function(A, B, t, s){
-  gyroadd(A, gyroscalar(t, gyroadd(-A, B, s), s), s)
+Mgyroscalar <- function(r, X, s){
+  Xnorm <- sqrt(dotprod(X))
+  s / Xnorm * tanh(r * atanh(Xnorm / s)) * X
+}
+
+UgyroABt <- function(A, B, t, s){
+  Ugyroadd(A, Ugyroscalar(t, Ugyroadd(-A, B, s), s), s)
+}
+
+MgyroABt <- function(A, B, t, s){
+  Mgyroadd(A, Mgyroscalar(t, Mgyroadd(-A, B, s), s), s)
 }
 
 #' @title Point on a gyroline
@@ -51,57 +42,232 @@ gyroscalar <- function(r, A, s){
 #'   and this is \code{B} for \code{t=1}. For \code{t=1/2} this is the
 #'   gyromidpoint of the gyrosegment joining \code{A} and \code{B}.
 #'
+#' @encoding UTF-8
+#'
 #' @param A,B two distinct points
 #' @param t a number
-#' @param s positive number, the parameter defining the hyperbolic curvature
+#' @param s positive number, the radius of the Poincaré ball if
+#'   \code{model="M"}, otherwise, if \code{model="U"}, this number
+#'   defines the hyperbolic curvature
+#' @param model the hyperbolic model, either \code{"M"} (Möbius model, i.e.
+#'   Poincaré model) or \code{"U"} (Ungar model, i.e. hyperboloid model)
 #'
 #' @return A point.
 #' @export
-gyroABt <- function(A, B, t, s){
+gyroABt <- function(A, B, t, s = 1, model = "U"){
+  model <- match.arg(model, c("M", "U"))
   stopifnot(isPositiveNumber(s))
   stopifnot(isPoint(A))
   stopifnot(isPoint(B))
   stopifnot(isNumber(t))
   stopifnot(areDistinct(A, B))
-  .gyroABt(A, B, t, s)
+  if(model == "M"){
+    if(dotprod(A) >= s || dotprod(B) >= s){
+      stop(
+        "In the M\u00f6bius gyrovector space, points must be ",
+        "strictly inside the centered ball of radius `s`.",
+        call. = TRUE
+      )
+    }
+    MgyroABt(A, B, t, s)
+  }else{
+    UgyroABt(A, B, t, s)
+  }
 }
 
-gyromidpoint <- function(A, B, s){
-  .gyroABt(A, B, 0.5, s)
+PhiUE <- function(A, s){
+  gammaF(A, s) * A
 }
 
-.gyrosegment <- function(A, B, s, n){
+PhiEU <- function(A, s){
+  betaF(A, s) * A
+}
+
+PhiEM <- function(A, s){
+  x <- dotprod(A) / s / s
+  2 * A / (1 + x)
+}
+
+#' @title Isomorphism from Möbius gyrovector space to Ungar gyrovector space
+#' @description Isomorphism from the Möbius gyrovector space to
+#'   the Ungar gyrovector space.
+#'
+#' @encoding UTF-8
+#'
+#' @param A a point whose norm is lower than \code{s}
+#' @param s positive number, the radius of the Poincaré ball
+#'
+#' @return The point of the Ungar gyrovector space corresponding to \code{A}
+#'   by isomorphism.
+#' @export
+PhiUM <- function(A, s = 1){
+  stopifnot(isPoint(A))
   stopifnot(isPositiveNumber(s))
-  stopifnot(isPositiveInteger(n))
+  if(dotprod(A) >= s){
+    stop(
+      "In the M\u00f6bius gyrovector space, points must be ",
+      "strictly inside the centered ball of radius `s`.",
+      call. = TRUE
+    )
+  }
+  PhiUE(PhiEM(A, s), s)
+}
+
+PhiME <- function(A, s){
+  gamm <- gammaF(A, s)
+  gamm * A / (1 + gamm)
+}
+
+#' @title Isomorphism from Ungar gyrovector space to Möbius gyrovector space
+#' @description Isomorphism from the Ungar gyrovector space to
+#'   the Möbius gyrovector space.
+#'
+#' @encoding UTF-8
+#'
+#' @param A a point in the Ungar vector space with curvature \code{s}
+#' @param s a positive number, the hyperbolic curvature of the Ungar
+#'   vector space
+#'
+#' @return The point of the Poincaré ball of radius \code{s} corresponding
+#'   to \code{A} by isomorphism.
+#' @export
+PhiMU <- function(A, s = 1){
+  stopifnot(isPoint(A))
+  stopifnot(isPositiveNumber(s))
+  PhiME(PhiEU(A, s), s)
+}
+
+Egyromidpoint <- function(A, B, s){
+  gA <- gammaF(A, s); gB <- gammaF(B, s)
+  (gA*A + gB*B) / (gA + gB)
+}
+
+Ugyromidpoint <- function(A, B, s){
+  PhiUE(Egyromidpoint(PhiEU(A, s), PhiEU(B, s), s), s)
+}
+
+Mgyromidpoint <- function(A, B, s){
+  PhiME(Egyromidpoint(PhiEM(A, s), PhiEM(B, s), s), s)
+}
+
+# Ugyromidpoint <- function(A, B, s){
+#   UgyroABt(A, B, 0.5, s)
+# }
+#
+# Mgyromidpoint <- function(A, B, s){
+#   MgyroABt(A, B, 0.5, s)
+# }
+
+#' @title Gyromidpoint
+#' @description The gyromidpoint of a \code{\link{gyrosegment}}.
+#'
+#' @encoding UTF-8
+#'
+#' @param A,B two distinct points (of the same dimension)
+#' @param s positive number, the radius of the Poincaré ball if
+#'   \code{model="M"}, otherwise, if \code{model="U"}, this number
+#'   defines the hyperbolic curvature
+#' @param model the hyperbolic model, either \code{"M"} (Möbius model, i.e.
+#'   Poincaré model) or \code{"U"} (Ungar model, i.e. hyperboloid model)
+#'
+#' @return A point, the gyromidpoint of a the \code{\link{gyrosegment}}
+#'   joining \code{A} and \code{B}.
+#' @export
+#' @note This is the same as \code{gyroABt(A, B, 1/2, s)} but the
+#'   calculation is more efficient.
+gyromidpoint <- function(A, B, s = 1, model = "U"){
+  model <- match.arg(model, c("M", "U"))
+  stopifnot(isPoint(A))
+  stopifnot(isPoint(B))
+  stopifnot(length(A) == length(B))
+  stopifnot(isPositiveNumber(s))
   stopifnot(areDistinct(A, B))
+  if(model == "M"){
+    if(dotprod(A) >= s || dotprod(B) >= s){
+      stop(
+        "In the M\u00f6bius gyrovector space, points must be ",
+        "strictly inside the centered ball of radius `s`.",
+        call. = TRUE
+      )
+    }
+    Mgyromidpoint(A, B, s)
+  }else{
+    Ugyromidpoint(A, B, s)
+  }
+}
+
+Ugyrosegment <- function(A, B, s, n){
   t(vapply(seq(0, 1, length.out = n), function(t){
-    gyroABt(A, B, t, s)
+    UgyroABt(A, B, t, s)
   }, numeric(length(A))))
 }
 
+Mgyrosegment <- function(A, B, s, n){
+  t(Mgyrosegment_cpp(A, B, s, n))
+  # t(vapply(seq(0, 1, length.out = n), function(t){
+  #   MgyroABt(A, B, t, s)
+  # }, numeric(length(A))))
+}
 
 #' @title Gyrosegment
 #' @description Gyrosegment joining two given points.
 #'
+#' @encoding UTF-8
+#'
 #' @param A,B two distinct points (of the same dimension)
-#' @param s positive number, the curvature
+#' @param s positive number, the radius of the Poincaré ball if
+#'   \code{model="M"}, otherwise, if \code{model="U"}, this number
+#'   defines the hyperbolic curvature
+#' @param model the hyperbolic model, either \code{"M"} (Möbius model, i.e.
+#'   Poincaré model) or \code{"U"} (Ungar model, i.e. hyperboloid model)
 #' @param n number of points forming the gyrosegment from \code{A} to \code{B}
 #'
-#' @return A numeric matrix with \code{n} rows. Each row is a point on the
+#' @return A numeric matrix with \code{n} rows. Each row is a point of the
 #'   gyrosegment from \code{A} (the first row) to \code{B} (the last row).
 #' @export
 #'
-#' @examples library(gyro)
+#' @note The gyrosegment is obtained from \code{\link{gyroABt}} by varying
+#' \code{t} from \code{0} to \code{1}.
+#'
+#' @examples
+#' library(gyro)
 #' # a 2D example ####
 #' A <- c(1, 2); B <- c(1, 1)
+#' opar <- par(mfrow = c(1, 2), mar = c(2, 2, 2, 0.5))
 #' plot(rbind(A, B), type = "p", pch = 19, xlab = NA, ylab = NA,
-#'      xlim = c(0, 2), ylim = c(0, 2), asp = 1)
-#' AB <- gyrosegment(A, B, s = 0.2)
-#' lines(AB) # this is a piece of an hyperboloid
-#' text(t(A), expression(italic(A)), pos = 1)
+#'      xlim = c(0, 2), ylim = c(0, 2), main = "s = 0.2")
+#' s <- 0.2
+#' AB <- gyrosegment(A, B, s)
+#' lines(AB, col = "blue", lwd = 2)
+#' text(t(A), expression(italic(A)), pos = 2)
 #' text(t(B), expression(italic(B)), pos = 3)
+#' # this is an hyperbola whose asymptotes meet at the origin
+#' # approximate asymptotes
+#' lines(rbind(c(0, 0), gyroABt(A, B, t = -20, s)), lty = "dashed")
+#' lines(rbind(c(0, 0), gyroABt(A, B, t = 20, s)), lty = "dashed")
+#' # plot the gyromidoint
+#' points(
+#'  rbind(gyromidpoint(A, B, s)),
+#'  type = "p", pch = 19, col = "red"
+#' )
+#' # another one, with a different `s`
+#' plot(rbind(A, B), type = "p", pch = 19, xlab = NA, ylab = NA,
+#'      xlim = c(0, 2), ylim = c(0, 2), main = "s = 0.1")
+#' s <- 0.1
+#' AB <- gyrosegment(A, B, s)
+#' lines(AB, col = "blue", lwd = 2)
+#' text(t(A), expression(italic(A)), pos = 2)
+#' text(t(B), expression(italic(B)), pos = 3)
+#' # approximate asymptotes
+#' lines(rbind(c(0, 0), gyroABt(A, B, t = -20, s)), lty = "dashed")
+#' lines(rbind(c(0, 0), gyroABt(A, B, t = 20, s)), lty = "dashed")
+#' # plot the gyromidoint
+#' points(
+#'  rbind(gyromidpoint(A, B, s)),
+#'  type = "p", pch = 19, col = "red"
+#' )
 #'
-#' # a 3D hyperbolic triangle
+#' # a 3D hyperbolic triangle ####
 #' library(rgl)
 #' A <- c(1, 0, 0); B <- c(0, 1, 0); C <- c(0, 0, 1)
 #' s <- 0.3
@@ -110,18 +276,40 @@ gyromidpoint <- function(A, B, s){
 #' BC <- gyrosegment(B, C, s)
 #' view3d(30, 30, zoom = 0.75)
 #' lines3d(AB, lwd = 3); lines3d(AC, lwd = 3); lines3d(BC, lwd = 3)
-gyrosegment <- function(A, B, s = 1, n = 100){
+gyrosegment <- function(A, B, s = 1, model = "U", n = 100){
+  model <- match.arg(model, c("M", "U"))
   stopifnot(isPoint(A))
   stopifnot(isPoint(B))
   stopifnot(length(A) == length(B))
-  .gyrosegment(A, B, s, n)
+  stopifnot(isPositiveNumber(s))
+  stopifnot(isPositiveInteger(n))
+  stopifnot(n >= 2)
+  stopifnot(areDistinct(A, B))
+  if(model == "M"){
+    if(dotprod(A) >= s || dotprod(B) >= s){
+      stop(
+        "In the M\u00f6bius gyrovector space, points must be ",
+        "strictly inside the centered ball of radius `s`.",
+        call. = TRUE
+      )
+    }
+    Mgyrosegment(A, B, s, n)
+  }else{
+    Ugyrosegment(A, B, s, n)
+  }
 }
 
 #' @title Gyrotube (tubular gyrosegment)
 #' @description Tubular gyrosegment joining two given 3D points.
 #'
+#' @encoding UTF-8
+#'
 #' @param A,B distinct 3D points
-#' @param s positive number, the curvature (higher value, less curved)
+#' @param s positive number, the radius of the Poincaré ball if
+#'   \code{model="M"}, otherwise, if \code{model="U"}, this number
+#'   defines the hyperbolic curvature (higher value, less curved)
+#' @param model the hyperbolic model, either \code{"M"} (Möbius model, i.e.
+#'   Poincaré model) or \code{"U"} (Ungar model, i.e. hyperboloid model)
 #' @param n number of points forming the gyrosegment
 #' @param radius radius of the tube around the gyrosegment
 #' @param sides number of sides in the polygon cross section
@@ -151,22 +339,36 @@ gyrosegment <- function(A, B, s = 1, n = 100){
 #' shade3d(AC, color = "gold")
 #' shade3d(BC, color = "gold")
 #' spheres3d(rbind(A, B, C), radius = 0.04, color = "gold")
-gyrotube <- function(A, B, s = 1, n = 100, radius, sides = 90, caps = FALSE){
+gyrotube <- function(
+    A, B, s = 1, model = "U", n = 100, radius, sides = 90, caps = FALSE
+){
+  model <- match.arg(model, c("M", "U"))
   stopifnot(isPositiveNumber(s))
   stopifnot(is3dPoint(A))
   stopifnot(is3dPoint(B))
   stopifnot(isPositiveInteger(n))
   stopifnot(isPositiveInteger(sides))
   stopifnot(isBoolean(caps))
-  points <- .gyrosegment(A, B, s, n)
+  if(model == "M"){
+    if(dotprod(A) >= s || dotprod(B) >= s){
+      stop(
+        "In the M\u00f6bius gyrovector space, points must be ",
+        "strictly inside the centered ball of radius `s`.",
+        call. = TRUE
+      )
+    }
+    points <- Mgyrosegment(A, B, s, n)
+  }else{
+    points <- Ugyrosegment(A, B, s, n)
+  }
   closed <- ifelse(caps, -2, 0)
   cylinder3d(points, radius = radius, sides = sides, closed = closed)
 }
 
-gyrosubdiv <- function(A1, A2, A3, s){
-  M12 <- gyromidpoint(A1, A2, s)
-  M13 <- gyromidpoint(A1, A3, s)
-  M23 <- gyromidpoint(A2, A3, s)
+Ugyrosubdiv <- function(A1, A2, A3, s){
+  M12 <- Ugyromidpoint(A1, A2, s)
+  M13 <- Ugyromidpoint(A1, A3, s)
+  M23 <- Ugyromidpoint(A2, A3, s)
   list(
     list(A1, M12, M13),
     list(A2, M23, M12),
@@ -175,11 +377,56 @@ gyrosubdiv <- function(A1, A2, A3, s){
   )
 }
 
+Mgyrosubdiv <- function(A1, A2, A3, s){
+  M12 <- Mgyromidpoint(A1, A2, s)
+  M13 <- Mgyromidpoint(A1, A3, s)
+  M23 <- Mgyromidpoint(A2, A3, s)
+  list(
+    list(A1, M12, M13),
+    list(A2, M23, M12),
+    list(A3, M13, M23),
+    list(M12, M13, M23)
+  )
+}
+
+Egyrocentroid <- function(A, B, C, s){
+  gA <- gammaF(A, s); gB <- gammaF(B, s); gC <- gammaF(C, s)
+  (gA*A + gB*B + gC*C) / (gA + gB + gC)
+}
+
+Ugyrocentroid <- function(A, B, C, s){
+  PhiUE(Egyrocentroid(PhiEU(A, s), PhiEU(B, s), PhiEU(C, s), s), s)
+}
+
+Mgyrocentroid <- function(A, B, C, s){
+  s2 <- s * s
+  gA2 <- 1 / (1 - dotprod(A)/s2)
+  gB2 <- 1 / (1 - dotprod(B)/s2)
+  gC2 <- 1 / (1 - dotprod(C)/s2)
+  if(
+    gA2 < 0 || gB2 < 0 || gC2 < 0 ||
+    is.infinite(gA2) || is.infinite(gB2) || is.infinite(gC2)
+  ){
+    stop(
+      "In the M\u00f6bius gyrovector space, points must be ",
+      "strictly inside the centered ball of radius `s`.",
+      call. = FALSE
+    )
+  }
+  Mgyroscalar(0.5, (gA2*A + gB2*B + gC2*C) / (gA2 + gB2 + gC2 - 1.5), s)
+}
+
 #' @title Gyrotriangle in 3D space
 #' @description 3D gyrotriangle as a mesh.
 #'
+#' @encoding UTF-8
+#'
 #' @param A,B,C three distinct 3D points
-#' @param s positive number, the curvature (the smaller, the more curved)
+#' @param s positive number, the radius of the Poincaré ball if
+#'   \code{model="M"}, otherwise, if \code{model="U"}, this number
+#'   defines the hyperbolic curvature (the smaller, the more curved)
+#' @param model the hyperbolic model, either \code{"M"} (Möbius model, i.e.
+#'   Poincaré model) or \code{"U"} (Ungar model, i.e. hyperboloid model)
 #' @param iterations the gyrotriangle is constructed by iterated subdivisions,
 #'   this argument is the number of iterations
 #' @param palette a vector of colors to decorate the triangle, or \code{NULL}
@@ -243,14 +490,31 @@ gyrosubdiv <- function(A1, A2, A3, s){
 #' }
 #' spheres3d(vertices, radius = 0.05, color = "lemonchiffon")}
 gyrotriangle <- function(
-  A, B, C, s = 1, iterations = 5,
-  palette = NULL, bias = 1, interpolate = "linear", g = identity
+    A, B, C, s = 1, model = "U", iterations = 5,
+    palette = NULL, bias = 1, interpolate = "linear", g = identity
 ){
-  subd <- gyrosubdiv(A, B, C, s)
-  for(i in seq_len(iterations-1)){
-    subd <- flatten(lapply(subd, function(triplet){
-      gyrosubdiv(triplet[[1L]], triplet[[2L]], triplet[[3L]], s)
-    }))
+  model <- match.arg(model, c("M", "U"))
+  if(model == "M"){
+    if(dotprod(A) >= s || dotprod(B) >= s || dotprod(C) >= s){
+      stop(
+        "In the M\u00f6bius gyrovector space, points must be ",
+        "strictly inside the centered ball of radius `s`.",
+        call. = TRUE
+      )
+    }
+    subd <- Mgyrosubdiv(A, B, C, s)
+    for(i in seq_len(iterations-1)){
+      subd <- flatten(lapply(subd, function(triplet){
+        Mgyrosubdiv(triplet[[1L]], triplet[[2L]], triplet[[3L]], s)
+      }))
+    }
+  }else{
+    subd <- Ugyrosubdiv(A, B, C, s)
+    for(i in seq_len(iterations-1)){
+      subd <- flatten(lapply(subd, function(triplet){
+        Ugyrosubdiv(triplet[[1L]], triplet[[2L]], triplet[[3L]], s)
+      }))
+    }
   }
   vertices <-
     do.call(cbind, lapply(subd, function(triplet) do.call(cbind, triplet)))
@@ -264,10 +528,17 @@ gyrotriangle <- function(
   mesh[["remface"]] <- NULL
   if(!is.null(palette)){
     fpalette <- colorRamp(palette, bias = bias, interpolate = interpolate)
-    gyroG <- gyrocentroid(A, B, C, s)
-    dists <- sqrt(apply(mesh$vb[-4L, ], 2L, function(v){
-      dotprod(gyroadd(-gyroG, v, s))
-    }))
+    if(model == "M"){
+      gyroG <- Mgyrocentroid(A, B, C, s)
+      dists <- sqrt(apply(mesh$vb[-4L, ], 2L, function(v){
+        dotprod(Mgyroadd(-gyroG, v, s))
+      }))
+    }else{
+      gyroG <- Ugyrocentroid(A, B, C, s)
+      dists <- sqrt(apply(mesh$vb[-4L, ], 2L, function(v){
+        dotprod(Ugyroadd(-gyroG, v, s))
+      }))
+    }
     dists <- (dists - min(dists))/diff(range(dists))
     RGB <- fpalette(g(dists))
     colors <- rgb(RGB[, 1L], RGB[, 2L], RGB[, 3L], maxColorValue = 255)
@@ -295,8 +566,14 @@ gyrotriangle <- function(
 #' @title Hyperbolic convex hull
 #' @description Plot the hyperbolic convex hull of a set of 3D points.
 #'
+#' @encoding UTF-8
+#'
 #' @param points matrix of 3D points, one point per row
-#' @param s curvature parameter
+#' @param s positive number, the radius of the Poincaré ball if
+#'   \code{model="M"}, otherwise, if \code{model="U"}, this number
+#'   defines the hyperbolic curvature (the smaller, the more curved)
+#' @param model the hyperbolic model, either \code{"M"} (Möbius model, i.e.
+#'   Poincaré model) or \code{"U"} (Ungar model, i.e. hyperboloid model)
 #' @param iterations argument passed to \code{\link{gyrotriangle}}
 #' @param n argument passed to \code{\link{gyrotube}} or
 #'   \code{\link{gyrosegment}}, the number of points for each edge
@@ -433,11 +710,22 @@ gyrotriangle <- function(
 #'   facesColor = trek_pal("lcars_series"), g = function(u) 1-u^2
 #' )}
 plotGyrohull3d <- function(
-  points, s = 1, iterations = 5, n = 100, edgesAsTubes = TRUE,
-  verticesAsSpheres = edgesAsTubes, edgesColor = "yellow",
-  spheresColor = edgesColor, tubesRadius = 0.03, spheresRadius = 0.05,
-  facesColor = "navy", bias = 1, interpolate = "linear", g = identity
+    points, s = 1, model = "U", iterations = 5, n = 100, edgesAsTubes = TRUE,
+    verticesAsSpheres = edgesAsTubes, edgesColor = "yellow",
+    spheresColor = edgesColor, tubesRadius = 0.03, spheresRadius = 0.05,
+    facesColor = "navy", bias = 1, interpolate = "linear", g = identity
 ){
+  model <- match.arg(model, c("M", "U"))
+  if(model == "M"){
+    snorms <- apply(points, 1L, dotprod)
+    if(any(snorms >= s)){
+      stop(
+        "In the M\u00f6bius gyrovector space, points must be ",
+        "strictly inside the centered ball of radius `s`.",
+        call. = TRUE
+      )
+    }
+  }
   stopifnot(isBoolean(edgesAsTubes))
   stopifnot(isBoolean(verticesAsSpheres))
   hull <- .cxhull(points)
@@ -451,7 +739,7 @@ plotGyrohull3d <- function(
     triangle <- Triangles[[i]]
     Gtriangles[[i]] <- gyrotriangle(
       triangle[1L, ], triangle[2L, ], triangle[3L, ],
-      s = s, iterations = iterations, palette = palette,
+      s = s, model = model, iterations = iterations, palette = palette,
       bias = bias, interpolate = interpolate, g = g
     )
   }
@@ -464,16 +752,26 @@ plotGyrohull3d <- function(
   if(edgesAsTubes){
     for(edge in Edges){
       gtube <- gyrotube(
-        edge[1L, ], edge[2L, ], s = s, n = n, radius = tubesRadius
+        edge[1L, ], edge[2L, ], s = s, model = model,
+        n = n, radius = tubesRadius
       )
       shade3d(gtube, color = edgesColor)
     }
   }else{
-    for(edge in Edges){
-      gsegment <- gyrosegment(
-        edge[1L, ], edge[2L, ], s = s, n = n
-      )
-      lines3d(gsegment, color = edgesColor, lwd = 2)
+    if(model == "M"){
+      for(edge in Edges){
+        gsegment <- Mgyrosegment(
+          edge[1L, ], edge[2L, ], s = s, n = n
+        )
+        lines3d(gsegment, color = edgesColor, lwd = 2)
+      }
+    }else{
+      for(edge in Edges){
+        gsegment <- Ugyrosegment(
+          edge[1L, ], edge[2L, ], s = s, n = n
+        )
+        lines3d(gsegment, color = edgesColor, lwd = 2)
+      }
     }
   }
   if(verticesAsSpheres){

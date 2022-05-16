@@ -14,7 +14,19 @@
 
 <title>Get started with ‘gyro’</title>
 
-<script src="data:application/javascript;base64,Ly8gUGFuZG9jIDIuOSBhZGRzIGF0dHJpYnV0ZXMgb24gYm90aCBoZWFkZXIgYW5kIGRpdi4gV2UgcmVtb3ZlIHRoZSBmb3JtZXIgKHRvCi8vIGJlIGNvbXBhdGlibGUgd2l0aCB0aGUgYmVoYXZpb3Igb2YgUGFuZG9jIDwgMi44KS4KZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignRE9NQ29udGVudExvYWRlZCcsIGZ1bmN0aW9uKGUpIHsKICB2YXIgaHMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCJkaXYuc2VjdGlvbltjbGFzcyo9J2xldmVsJ10gPiA6Zmlyc3QtY2hpbGQiKTsKICB2YXIgaSwgaCwgYTsKICBmb3IgKGkgPSAwOyBpIDwgaHMubGVuZ3RoOyBpKyspIHsKICAgIGggPSBoc1tpXTsKICAgIGlmICghL15oWzEtNl0kL2kudGVzdChoLnRhZ05hbWUpKSBjb250aW51ZTsgIC8vIGl0IHNob3VsZCBiZSBhIGhlYWRlciBoMS1oNgogICAgYSA9IGguYXR0cmlidXRlczsKICAgIHdoaWxlIChhLmxlbmd0aCA+IDApIGgucmVtb3ZlQXR0cmlidXRlKGFbMF0ubmFtZSk7CiAgfQp9KTsK"></script>
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -126,7 +138,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 
 
-<link rel="stylesheet" href="data:text/css,body%20%7Bfont%2Dfamily%3A%20%22Trebuchet%20MS%22%2C%20Helvetica%2C%20sans%2Dserif%3Bfont%2Dsize%3A%2018px%3B%7Dh1%20%7Bfont%2Dsize%3A%202%2E2em%3Btext%2Ddecoration%3A%20underline%3B%7Dh2%20%7Bfont%2Dsize%3A%201%2E9em%3B%7Dp%20%7Btext%2Dalign%3A%20justify%3B%7Dp%20code%20%7Bcolor%3A%20%23e83e8c%3Bfont%2Dfamily%3A%20%22Lucida%20Console%22%2C%20Monaco%2C%20monospace%3Bfont%2Dweight%3A%20bold%3B%7Dpre%2EsourceCode%20%7Bborder%3A%201px%20solid%20silver%3Bpadding%2Dleft%3A%201rem%3B%7Dcode%2EsourceCode%20%7Bfont%2Dsize%3A%201%2E1em%3B%7Dcode%2EsourceCode%20%3E%20span%20%7Bcolor%3A%20maroon%3B%7Dcode%20span%2Eco%20%7Bcolor%3A%20darkmagenta%3B%7Dcode%20span%2Edv%2C%20code%20span%2Efl%20%7Bcolor%3A%20firebrick%3B%7Dcode%20span%2Est%20%7Bcolor%3A%20orangered%3B%7Dcode%20span%2Eop%20%7Bcolor%3A%20%23343940%3B%7Dcode%20span%2Edt%20%7Bcolor%3A%20olive%3B%7Dcode%20span%2Ekw%20%7Bcolor%3A%20green%3B%7Ddiv%2EsourceCode%20%7Bbackground%2Dcolor%3A%20snow%3Bmargin%2Dleft%3A%201em%3B%7D%40media%20print%20%7Bdiv%2EsourceCode%20%7Bbackground%2Dcolor%3A%20snow%3B%7D%7D" type="text/css" />
+<style type="text/css">body {font-family: "Trebuchet MS", Helvetica, sans-serif;font-size: 18px;}h1 {font-size: 2.2em;text-decoration: underline;}h2 {font-size: 1.9em;}p {text-align: justify;}p code {color: #e83e8c;font-family: "Lucida Console", Monaco, monospace;font-weight: bold;}pre.sourceCode {border: 1px solid silver;padding-left: 1rem;}code.sourceCode {font-size: 1.1em;}code.sourceCode > span {color: maroon;}code span.co {color: darkmagenta;}code span.dv, code span.fl {color: firebrick;}code span.st {color: orangered;}code span.op {color: #343940;}code span.dt {color: olive;}code span.kw {color: green;}div.sourceCode {background-color: snow;margin-left: 1em;}@media print {div.sourceCode {background-color: snow;}}</style>
 
 
 
@@ -143,16 +155,42 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gyro)</span></code></pre></div>
-<p>About three years ago, I wrote an <a href="https://laustep.github.io/stlahblog/posts/hyperbolicPolyhedra.html">article on my blog</a> about Ungar’s approach to hyperbolic geometry, and how it can be used to draw some hyperbolic polyhedra in R, using the <strong>rgl</strong> package. I invite you to take a look at this article.</p>
-<p>Now I’ve implemented these ideas in the <strong>gyro</strong> package. Maybe you know there are several models of hyperbolic geometry; <strong>gyro</strong> deals with the hyperboloid model (or Minkowski model).</p>
-<p>The main functions of the <strong>gyro</strong> package are:</p>
+<p>About three years ago, I wrote an <a href="https://laustep.github.io/stlahblog/posts/hyperbolicPolyhedra.html">article
+on my blog</a> about Ungar’s approach to hyperbolic geometry, and how it
+can be used to draw some hyperbolic polyhedra in R, using the
+<strong>rgl</strong> package. I invite you to take a look at this
+article.</p>
+<p>Now I’ve implemented these ideas in the <strong>gyro</strong>
+package. Maybe you know there are several models of hyperbolic geometry;
+<strong>gyro</strong> deals with the hyperboloid model (or Minkowski
+model) and the Poincaré model.</p>
+<p>The main functions of the <strong>gyro</strong> package dealing with
+3D polyhedra are:</p>
 <ul>
-<li><p><code>gyrotube</code>, to draw a tubular hyperbolic segment (if you don’t want a tube, use <code>gyrosegment</code> instead);</p></li>
-<li><p><code>gyrotriangle</code>, to draw a filled hyperbolic triangle in the 3D space;</p></li>
-<li><p><code>plotGyrohull3d</code>, to draw the hyperbolic convex hull of a set of 3D points.</p></li>
+<li><p><code>gyrotube</code>, to draw a tubular hyperbolic segment (if
+you don’t want a tube, use <code>gyrosegment</code> instead);</p></li>
+<li><p><code>gyrotriangle</code>, to draw a filled hyperbolic triangle
+in the 3D space;</p></li>
+<li><p><code>plotGyrohull3d</code>, to draw the hyperbolic convex hull
+of a set of 3D points.</p></li>
 </ul>
-<p>You can run <code>gyrodemos()</code> to get some examples of code which draw some hyperbolic polyhedra.</p>
-<p>If you are looking for other polyhedra, you can go to the <strong>Visual Polyhedra</strong> page of the <a href="http://dmccooey.com/polyhedra/index.html">dmccooey</a> website. Here you will find the Cartesian coordinates of the vertices of many polyhedra. If the polyhedron is convex (in the Euclidean space), use <code>plotGyrohull3d</code> to quickly draw it. Otherwise you need to know the faces of the polyhedron, and they are given on the <a href="http://dmccooey.com/polyhedra/index.html">dmccooey</a> website. From the faces you can derive the edges. See <code>gyrodemos()</code> for some examples. The <a href="http://eusebeia.dyndns.org/4d/index">eusebeia</a> website is another resource to find the Cartesian coordinates of the vertices of some polyhedra. Finally you can also use the R package <a href="https://CRAN.R-project.org/package=Rpolyhedra">Rpolyhedra</a>. It is archived on CRAN, but you can install it from the <code>tar.gz</code> archive.</p>
+<p>You can run <code>gyrodemos()</code> to get some examples of code
+which draw some hyperbolic polyhedra.</p>
+<p>If you are looking for other polyhedra, you can go to the
+<strong>Visual Polyhedra</strong> page of the <a href="http://dmccooey.com/polyhedra/index.html">dmccooey</a> website.
+Here you will find the Cartesian coordinates of the vertices of many
+polyhedra. If the polyhedron is convex (in the Euclidean space), use
+<code>plotGyrohull3d</code> to quickly draw it. Otherwise you need to
+know the faces of the polyhedron, and they are given on the <a href="http://dmccooey.com/polyhedra/index.html">dmccooey</a> website.
+From the faces you can derive the edges. See <code>gyrodemos()</code>
+for some examples. The <a href="http://eusebeia.dyndns.org/4d/index">eusebeia</a> website is
+another resource to find the Cartesian coordinates of the vertices of
+some polyhedra. Finally you can also use the R package <a href="https://CRAN.R-project.org/package=Rpolyhedra">Rpolyhedra</a>.</p>
+<p>The <strong>gyro</strong> package also offers the <code>tiling</code>
+function to plot hyperbolic tilings of the Poincaré disk, and the
+<code>hdelaunay</code> function to construct hyperbolic Delaunay
+triangulations of the Poincaré disk. They are constructed with the C++
+library <strong>CGAL</strong>.</p>
 
 
 
