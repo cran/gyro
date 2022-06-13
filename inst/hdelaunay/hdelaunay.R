@@ -38,6 +38,7 @@ NULL
 #'
 #' @examples
 #' library(gyro)
+#' Htest()
 #' library(uniformly)
 #' set.seed(666)
 #' points <- runif_in_sphere(10L, d = 2)
@@ -229,7 +230,7 @@ plotHdelaunay <- function(
   }
   if(vertices){
     if("ivertices" %in% remove){
-      pts <- hdel[["mvertices"]]
+      pts <- pts[hdel[["mvertices"]], ]
     }
     points(pts, pch = 19, cex = 0.9)
   }
