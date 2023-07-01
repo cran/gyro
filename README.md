@@ -2,7 +2,7 @@
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/stla/gyro/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/stla/gyro/actions/workflows/R-CMD-check.yaml)
-[![R-CMD-check-valgrind](https://github.com/stla/gyro/actions/workflows/R-CMD-check-valgrind.yaml/badge.svg)](https://github.com/stla/gyro/actions/workflows/R-CMD-check-valgrind.yaml)
+[![R-CMD-check-with-valgrind](https://github.com/stla/gyro/actions/workflows/R-CMD-check-valgrind.yaml/badge.svg)](https://github.com/stla/gyro/actions/workflows/R-CMD-check-valgrind.yaml)
 <!-- badges: end -->
 
 ![](https://raw.githubusercontent.com/stla/gyro/main/inst/images/translatedIcosahedra.gif)
@@ -42,13 +42,6 @@
 ![](https://raw.githubusercontent.com/stla/gyro/main/inst/images/Uhdelaunay.png)
 
 ![](https://raw.githubusercontent.com/stla/gyro/main/inst/images/hdelaunayU.png)
-
-
-## License
-
-This package is provided under the GPL-3 license. It uses the C++ library 
-CGAL. If you wish to use CGAL for commercial purposes, you must obtain a 
-license from the [GeometryFactory](https://geometryfactory.com).
 
 
 ## Blog post
