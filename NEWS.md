@@ -1,3 +1,10 @@
+# gyro 1.3.0 (2023-08-07)
+
+- New function `gyroray`. 
+
+- New function `gyroreflection`.
+
+
 # gyro 1.2.0 (2023-07-01)
 
 New function `plotGyroMesh`, to quickly plot a hyperbolic version of a 

@@ -1,13 +1,14 @@
-fc803e6dbbd8e14e81447bbcc3deeea3 *DESCRIPTION
-5662d326651b5aee26604eaa0e0f119f *NAMESPACE
-71cd5dcf765634b2aaf3a2607c5f14d4 *NEWS.md
+bca48082d19f009986e109e7d5ce3cdb *DESCRIPTION
+8f538bc2f8e616d844078142b8358b37 *NAMESPACE
+8f526fc4aedc0397f0f9943eea6662c9 *NEWS.md
 b6feebd4484d57a852377412e26c3260 *R/RcppExports.R
 a378daea21f38d6460395b283a9c653f *R/aaa.R
 199eddfecdb9d8fb8e26ac2fe4ccf751 *R/examples.R
-cc258532c70a1165e40334ad33740d67 *R/gyro.R
+3108ce061d7ec442982f4af552121f3b *R/gyro.R
 8f43a5d37540fd2a0e64c113914c347b *R/gyro_operations.R
 221f56cc18cf77368b8988cea03cf054 *R/gyrocentroid.R
 b1bb1944b03d5b19b7893256c67c51af *R/gyromidpoint.R
+a47fa73244bc0269c995f1cb07d88eb0 *R/gyroreflection.R
 b1c81e2b4a0d3691b74e7effad1c9224 *R/gyrosegment.R
 c5455fbdb8f56da0b5ab914327926132 *R/gyrosubdiv.R
 e164be468d27655daa1022a9ca33756a *R/hdelaunay.R
@@ -16,7 +17,7 @@ cdae01a4d069a3452d22cf0f4d8d3904 *R/internal.R
 ad9fc10bb119225059438feb3aacad2d *R/misc.R
 b76644c3ecd3824227efc274f78ca803 *R/plot.R
 3d9bb1c34fc93f26b336ec8e8298af89 *R/tiling.R
-85b55e5e8b0a4bb0c1f2e507106f4d4b *README.md
+1b5e30720710a204acce369a1267c049 *README.md
 9c72a207569f14572b10787062331505 *build/vignette.rds
 6ed05a990c18e71546305cc9c7f72e6f *inst/approx_sqrt.R
 dfb69d6d84b13a3804bea044184a6156 *inst/doc/getstarted.R
@@ -52,6 +53,8 @@ b01411827c672cfeef55b2026d6f02c2 *inst/hdelaunay/hdelaunay.R
 afe1373a0903958d7d27df2891c2203c *man/gyrocentroid.Rd
 6afa081dc789ae6039adb73072d6dc53 *man/gyrodemos.Rd
 966e1865fbe43f7f0bcc3f1c29226749 *man/gyromidpoint.Rd
+c0936493514c04ae5e8ec40ffde8350d *man/gyroray.Rd
+35582c348dc8269e24c8ca8ec4d9ea75 *man/gyroreflection.Rd
 78c5f87ef887447986f14a85548284a3 *man/gyrosegment.Rd
 ef831d2a11abced32784b59124d4b8d3 *man/gyrotriangle.Rd
 d3111b790c146adf3c646025f4fa6474 *man/gyrotube.Rd
