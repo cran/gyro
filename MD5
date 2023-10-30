@@ -1,8 +1,9 @@
-bca48082d19f009986e109e7d5ce3cdb *DESCRIPTION
-8f538bc2f8e616d844078142b8358b37 *NAMESPACE
-8f526fc4aedc0397f0f9943eea6662c9 *NEWS.md
+f12d25f10f05a73fddcf91868ae6ef6d *DESCRIPTION
+d8f9d2ae7d11fdc8b6f8b614d8d66597 *NAMESPACE
+a72ad852bd254d31e8134c9075a44883 *NEWS.md
 b6feebd4484d57a852377412e26c3260 *R/RcppExports.R
 a378daea21f38d6460395b283a9c653f *R/aaa.R
+213cc1e517fd1a72fd98a8a3c9da8e3c *R/colors.R
 199eddfecdb9d8fb8e26ac2fe4ccf751 *R/examples.R
 3108ce061d7ec442982f4af552121f3b *R/gyro.R
 8f43a5d37540fd2a0e64c113914c347b *R/gyro_operations.R
@@ -11,7 +12,7 @@ b1bb1944b03d5b19b7893256c67c51af *R/gyromidpoint.R
 a47fa73244bc0269c995f1cb07d88eb0 *R/gyroreflection.R
 b1c81e2b4a0d3691b74e7effad1c9224 *R/gyrosegment.R
 c5455fbdb8f56da0b5ab914327926132 *R/gyrosubdiv.R
-e164be468d27655daa1022a9ca33756a *R/hdelaunay.R
+9c99a1cdddcb693c1a41042b69ac86df *R/hdelaunay.R
 cdae01a4d069a3452d22cf0f4d8d3904 *R/internal.R
 29fa0bcb27fa254acd29b8d286983167 *R/isomorphisms.R
 ad9fc10bb119225059438feb3aacad2d *R/misc.R
@@ -20,7 +21,7 @@ b76644c3ecd3824227efc274f78ca803 *R/plot.R
 1b5e30720710a204acce369a1267c049 *README.md
 9c72a207569f14572b10787062331505 *build/vignette.rds
 6ed05a990c18e71546305cc9c7f72e6f *inst/approx_sqrt.R
-dfb69d6d84b13a3804bea044184a6156 *inst/doc/getstarted.R
+463db60609246597cb20e52011a12b6b *inst/doc/getstarted.R
 ba2103f005ce0e3182b94065b77b0afd *inst/doc/getstarted.Rmd
 270ad795f109757183264c67e3cf2e56 *inst/doc/getstarted.html
 4139fb2ba324ac6ae3f1d2ffd33a777b *inst/extdata/greatStellatedDodecahedron.ply
@@ -62,7 +63,7 @@ c8677c49926f9e67756b98fb76af3f71 *man/hdelaunay.Rd
 4d7a2dafa8563ebe698fed2940fe9f86 *man/hreflection.Rd
 3a88c950279e0537b1f22d8d6bdccf93 *man/plotGyroMesh.Rd
 ac416e880637c9341ad4ea850dec8980 *man/plotGyrohull3d.Rd
-212f73dbc7849f18f6625bf1e5fff9ef *man/plotHdelaunay.Rd
+27b13c18b4ba09e242e57edae3e4f351 *man/plotHdelaunay.Rd
 4256d4023edf86d099e9dfce3cec0d20 *man/tiling.Rd
 ae6ac07e61f86bcc09c54ae274307bd8 *src/Makevars
 01b38bd4ffb59308b77ad230bc798ef8 *src/Makevars.win
